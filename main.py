@@ -5,11 +5,10 @@ import json
 
 CLIENT_ID = os.environ.get("CLIENT_ID")
 CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
-SCOPE = ["user-read-playback-state","playlist-modify-public"]
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID,
                                                client_secret=CLIENT_SECRET,
                                                redirect_uri="http://localhost:8888/callback",
-                                                  scope="user-read-playback-state" and "playlist-modify-public"))
+                                                scope="user-read-playback-state playlist-modify-public"))
 
 USER_ID = sp.current_user()['id']
 
@@ -50,7 +49,6 @@ def get_playlist_id(playlist_name):
 def add_to_playlist(playlist_name):
     playlist_id = get_playlist_id(playlist_name)
     sp.playlist_add_items(playlist_id,[get_current_track()])
-
 
 print(add_to_playlist("HeadBop+"))
 
