@@ -7,8 +7,8 @@ SCOPE = "user-read-playback-state playlist-modify-public user-top-read"
 
 sp = Spotipy(CLIENT_ID,CLIENT_SECRET,SCOPE)
 
+sp.get_top()
 
-sp.get_current_track(True)
 
 """
 spotify:playlist:6Bd5sDUNS3BGqMjRhuMO95
