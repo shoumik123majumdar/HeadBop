@@ -1,5 +1,6 @@
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
+import pandas
 
 
 class Spotipy():
@@ -11,7 +12,7 @@ class Spotipy():
         self.USER_ID = self.sp.current_user()['id']
 
     #  Helper Method
-    def get_artists(self, list):
+    def __get_artists(self, list):
         returnable = ""
         if (len(list) == 1):
             return str(list[0])
@@ -28,7 +29,7 @@ class Spotipy():
         if response != None:
             device_name = response['device']['name']
             song_name = response['item']['name']
-            artists = self.get_artists([artist['name'] for artist in response['item']['artists']])
+            artists = self.__get_artists([artist['name'] for artist in response['item']['artists']])
             album_name = response['item']['album']['name']
             if printable: print(
                 f'The song currently playing from your {device_name} is {song_name} by {artists} from the album: {album_name}')
@@ -48,26 +49,34 @@ class Spotipy():
             if item['name'] == playlist_name:
                 return item['id']
 
-    #  See if you can prevent duplicates
     def add_to_playlist(self, playlist_name, song_id=None):
         playlist_id = self.get_playlist_id(playlist_name)
         if song_id is None:
             song_id = [self.get_current_track()]
         self.sp.playlist_add_items(playlist_id, song_id)
 
-    def get_current_user_top(self, track_limit=5, artist_limit=5):
+    # Helper Method
+    def __get_top(self,item_type,limit):
+        list_item = []
+        if(item_type == "track"):
+            track_response = self.sp.current_user_top_tracks(limit=limit)
+            list_item = [track['name'] for track in track_response['items']]
+        elif(item_type == "artist"):
+            artist_response = self.sp.current_user_top_artists(limit=limit)
+            list_item = [artist['name'] for artist in artist_response['items']]
+        print(pandas.DataFrame(zip(list_item), columns=[f"Top {len(list_item)} {item_type.capitalize()}s"]))
+        return list_item
+
+    def get_current_user_top_songs(self, track_limit=5):
         if self.get_current_track():
-            track_response = self.sp.current_user_top_tracks(limit=track_limit)
-            list_tracks = [track['name'] for track in track_response['items']]
-
-            artist_response = self.sp.current_user_top_artists(limit=artist_limit)
-            list_artists = [artist['name'] for artist in artist_response['items']]
-
-            return list_tracks, list_artists
+            return self.__get_top("track",track_limit)
         else:
-            return False
+            print("Nothing is currently playing")
+
+    def get_current_user_top_artists(self,artist_limit=5):
+        if self.get_current_track():
+            return self.__get_top("artist",artist_limit)
+        else:
+            print("Nothing is currently playing")
 
 
-"""
-spotify:playlist:6Bd5sDUNS3BGqMjRhuMO95
-"""
