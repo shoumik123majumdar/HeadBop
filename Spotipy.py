@@ -40,6 +40,16 @@ class Spotipy():
             )
             return False
 
+    def get_current_user_playlists(self):
+        response = self.sp.current_user_playlists()
+        list_playlists = []
+        if response != None:
+            for item in response['items']:
+                list_playlists.append(item['name'])
+            return list_playlists
+        else:
+            return False
+
     def create_playlist(self, name, description=""):
         self.sp.user_playlist_create(self.USER_ID, public=True, description=description, name=name)
 
